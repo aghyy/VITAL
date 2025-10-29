@@ -7,11 +7,32 @@ app = Flask(__name__)
 # Original iCal source (Rapla link)
 ICAL_URL = "https://rapla.dhbw-karlsruhe.de/rapla?page=iCal&user=li&file=TINF23B6"
 
+EXCLUDED_EVENTS = [
+  "Mathematische Grundlagen der Kryptographie",
+  "Ethik für Informatiker (WM-A)",
+  "Gamification",
+  "Supervised Machine Learning",
+  "Digitale Forensik  (WMA)",
+  "Web-Services (WM-A)",
+  "Evolutionäre Algorithmen",
+  "Studienarbeit",
+  "Bildverarbetiung  (BV & CG)",
+  "Interaktive Systeme (KI & IS)",
+  ".Grundlagen der KI (KI & BV)",
+  "Kommunikations und Netztechnik II",
+  "Interaktive Systeme (KI & IS)",
+  "Computergraphik  (BV & CG)",
+  "Bildverarbeitung (KI & BV)",
+  "Allerheiligen",
+  "Netzwerktreffen für Studentinnen",
+  "Grundlagen der KI (KI & IS)",
+]
+
 # Define what to keep/remove
 def should_keep(event):
     summary = str(event.get('summary', '')).lower()
-    # 👇 Edit this logic to filter what you don’t need
-    if any(word in summary for word in ["mathe", "sport", "test"]):
+    # Edit this logic to filter what you don't want to keep
+    if any(word.lower() in summary for word in EXCLUDED_EVENTS):
         return False
     return True
 
@@ -32,4 +53,4 @@ def filtered_ics():
     return Response(new_cal.to_ical(), content_type="text/calendar")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8000, debug=True)
