@@ -26,6 +26,8 @@ EXCLUDED_EVENTS = [
   "Allerheiligen",
   "Netzwerktreffen für Studentinnen",
   "Grundlagen der KI (KI & IS)",
+  "Vorbereitungsraum mündl. Prüfung",
+  "mündl. Prüfung  ( min)",
 ]
 
 # Define what to keep/remove
