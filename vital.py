@@ -36,7 +36,7 @@ def should_keep(event):
         return False
     return True
 
-@app.route("/vital.ics")
+@app.route("/TINF23B6.ics")
 def filtered_ics():
     # Fetch original iCal
     r = requests.get(ICAL_URL)
