@@ -28,6 +28,16 @@ EXCLUDED_EVENTS = [
   "Grundlagen der KI (KI & IS)",
   "Vorbereitungsraum mündl. Prüfung",
   "mündl. Prüfung  ( min)",
+  "Klausur Wahlmodul Bildverarbeitung (KI und BV)  (60 min)",
+  "Klausurwoche 5. Semester",
+  "Klausurwoche",
+  "Klausur Wahlmodul 2aus4  (120 min)",
+  "Klausur Wahlmodul Computergrafik und Bildverarbeitung  (120 min)",
+  "Klausur Wahlmodul Künstliche Intelligenz und Bildverarbeitung  (60 min)",
+  "Klausur Web-Services (60 min)",
+  "Klausur Zuverlässige Embedded Systeme (60 min)",
+  "Klausur Wahlveranstaltung  (60 min)",
+  "Klausur Forensik (60 min)",
 ]
 
 # Define what to keep/remove
