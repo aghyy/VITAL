@@ -38,6 +38,7 @@ EXCLUDED_EVENTS = [
   "Klausur Zuverlässige Embedded Systeme (60 min)",
   "Klausur Wahlveranstaltung  (60 min)",
   "Klausur Forensik (60 min)",
+  "Hl. 3 Könige",
 ]
 
 # Define what to keep/remove
