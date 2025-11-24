@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from flask import Flask, Response
 import requests
 from icalendar import Calendar
@@ -7,39 +9,22 @@ app = Flask(__name__)
 # Original iCal source (Rapla link)
 ICAL_URL = "https://rapla.dhbw-karlsruhe.de/rapla?page=iCal&user=li&file=TINF23B6"
 
-EXCLUDED_EVENTS = [
-  "Mathematische Grundlagen der Kryptographie",
-  "Ethik für Informatiker (WM-A)",
-  "Gamification",
-  "Supervised Machine Learning",
-  "Digitale Forensik  (WMA)",
-  "Web-Services (WM-A)",
-  "Evolutionäre Algorithmen",
-  "Studienarbeit",
-  "Bildverarbetiung  (BV & CG)",
-  "Interaktive Systeme (KI & IS)",
-  ".Grundlagen der KI (KI & BV)",
-  "Kommunikations und Netztechnik II",
-  "Interaktive Systeme (KI & IS)",
-  "Computergraphik  (BV & CG)",
-  "Bildverarbeitung (KI & BV)",
-  "Allerheiligen",
-  "Netzwerktreffen für Studentinnen",
-  "Grundlagen der KI (KI & IS)",
-  "Vorbereitungsraum mündl. Prüfung",
-  "mündl. Prüfung  ( min)",
-  "Klausur Wahlmodul Bildverarbeitung (KI und BV)  (60 min)",
-  "Klausurwoche 5. Semester",
-  "Klausurwoche",
-  "Klausur Wahlmodul 2aus4  (120 min)",
-  "Klausur Wahlmodul Computergrafik und Bildverarbeitung  (120 min)",
-  "Klausur Wahlmodul Künstliche Intelligenz und Bildverarbeitung  (60 min)",
-  "Klausur Web-Services (60 min)",
-  "Klausur Zuverlässige Embedded Systeme (60 min)",
-  "Klausur Wahlveranstaltung  (60 min)",
-  "Klausur Forensik (60 min)",
-  "Hl. 3 Könige",
-]
+# The list of excluded event titles now lives in a sidecar file so non-devs can
+# adjust it without touching the code. Each non-empty line becomes one entry.
+EXCLUDED_EVENTS_FILE = Path(__file__).with_name("excluded_events.txt")
+
+
+def load_excluded_events(file_path: Path) -> list[str]:
+    if not file_path.exists():
+        return []
+    return [
+        line.strip()
+        for line in file_path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+
+EXCLUDED_EVENTS = load_excluded_events(EXCLUDED_EVENTS_FILE)
 
 # Define what to keep/remove
 def should_keep(event):
