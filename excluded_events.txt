@@ -33,4 +33,4 @@ Informationen zum CAS Master Informatik
 Klausur Wahlmodul Bildverarbeitung (CG und BV)  (60 min)
 Klausur Wahlmodul KI (Künstliche Intelligenz und Bildverarbeitung)  (60 min)
 Klausur Wahlmodul Computergrafik (CG und BV)  (60 min)
-
+Klausur Wahlmodul Künstliche Intelligenz und interaktive Systeme  (120 min)
