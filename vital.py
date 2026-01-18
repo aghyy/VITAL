@@ -59,7 +59,7 @@ def should_keep(event):
     
     # Check always excluded events
     for excluded_title in EXCLUSION_RULES.get('always_excluded', []):
-        if excluded_title.lower() in summary.lower():
+        if excluded_title.lower() == summary.lower():
             return False
     
     # Check time-based exclusions
@@ -73,7 +73,7 @@ def should_keep(event):
             if start_date <= event_date <= end_date:
                 # Check if event matches any of the excluded titles for this period
                 for excluded_title in rule['events']:
-                    if excluded_title.lower() in summary.lower():
+                    if excluded_title.lower() == summary.lower():
                         return False
     
     return True

@@ -1,5 +1,17 @@
 {
   "always_excluded": [
+    "Hl. 3 Könige",
+    "Allerheiligen",
+    "Faschingsdienstag",
+    "Klausurwoche",
+    "Karfreitag",
+    "Ostermontag",
+    "Tag der Arbeit",
+    "Christi Himmelfahrt",
+    "Pfingstmontag",
+    "Fronleichnam",
+    "Tag der deutschen Einheit",
+    "Allerheiligen"
   ],
   "time_based_exclusions": [
     {
@@ -21,14 +33,12 @@
         "Kommunikations und Netztechnik II",
         "Computergraphik  (BV & CG)",
         "Bildverarbeitung (KI & BV)",
-        "Allerheiligen",
         "Netzwerktreffen für Studentinnen",
         "Grundlagen der KI (KI & IS)",
         "Vorbereitungsraum mündl. Prüfung",
         "mündl. Prüfung  ( min)",
         "Klausur Wahlmodul Bildverarbeitung (KI und BV)  (60 min)",
         "Klausurwoche 5. Semester",
-        "Klausurwoche",
         "Klausur Wahlmodul 2aus4  (120 min)",
         "Klausur Wahlmodul Computergrafik und Bildverarbeitung  (120 min)",
         "Klausur Wahlmodul Künstliche Intelligenz und Bildverarbeitung  (60 min)",
@@ -36,7 +46,6 @@
         "Klausur Zuverlässige Embedded Systeme (60 min)",
         "Klausur Wahlveranstaltung  (60 min)",
         "Klausur Forensik (60 min)",
-        "Hl. 3 Könige",
         "Informationen zum CAS Master Informatik",
         "Klausur Wahlmodul Bildverarbeitung (CG und BV)  (60 min)",
         "Klausur Wahlmodul KI (Künstliche Intelligenz und Bildverarbeitung)  (60 min)",
@@ -51,7 +60,6 @@
       "events": [
         "Beginn Theorie 6. Semester",
         "Recht",
-        "Faschingsdienstag",
         "e Business (eB&PJM)",
         "Bildverarbeitung (aus CG und BV)",
         "Grundlagen KI (aus KI und BV)",
@@ -69,7 +77,17 @@
         "Digitale Audiosignalverarbeitung",
         "High Performance Computing",
         "Kolloquium TINF23 Nachtermin  ( min)",
-        "Studienarbeit"
+        "Studienarbeit",
+        "Klausur WahlUnit  (90 min)",
+        "Klausur Finite Elemente  (60 min)",
+        "Klausur Erklärebare KI  (60 min)",
+        "Klausur Digitale Augiosignalverarbeitung  (60 min)",
+        "Klausurwoche 6. Semester",
+        "Klausur Grundlagen KI und  Interaktive Systeme  (120 min)",
+        "Klausur im Wahlmodul 2aus6  (120 min)",
+        "Klausur Grundlagen KI und Bildverarbeitung  (120 min)",
+        "Klausur Computergraphik und Bildverarbeitung  (120 min)",
+        "Vorstellung SARB im Plenum"
       ]
     }
   ]

@@ -48,7 +48,7 @@ You can add multiple time-based exclusion rules with different date ranges.
 ### Matching Rules
 
 - Event matching is **case-insensitive**
-- The filter looks for **partial matches** (e.g., "Klausur" will match "Klausur Web-Services (60 min)")
+- The filter looks for **exact matches** (e.g., "Klausur Web-Services (60 min)" will only match if you write the full title)
 - An event is excluded if it matches **any** rule that applies to its date
 
 ## Running the App
