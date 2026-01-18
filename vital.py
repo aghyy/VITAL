@@ -1,4 +1,6 @@
 from pathlib import Path
+import json
+from datetime import datetime
 
 from flask import Flask, Response
 import requests
@@ -9,29 +11,71 @@ app = Flask(__name__)
 # Original iCal source (Rapla link)
 ICAL_URL = "https://rapla.dhbw-karlsruhe.de/rapla?page=iCal&user=li&file=TINF23B6"
 
-# The list of excluded event titles now lives in a sidecar file so non-devs can
-# adjust it without touching the code. Each non-empty line becomes one entry.
-EXCLUDED_EVENTS_FILE = Path(__file__).with_name("excluded_events.txt")
+# The exclusion rules now live in a JSON file for more flexibility
+EXCLUSION_RULES_FILE = Path(__file__).with_name("exclusion_rules.json")
 
 
-def load_excluded_events(file_path: Path) -> list[str]:
+def load_exclusion_rules(file_path: Path) -> dict:
+    """Load exclusion rules from JSON file.
+    
+    Expected format:
+    {
+        "always_excluded": ["event1", "event2", ...],
+        "time_based_exclusions": [
+            {
+                "events": ["event3", "event4", ...],
+                "start_date": "2025-09-22",
+                "end_date": "2025-12-21",
+                "description": "Optional description"
+            }
+        ]
+    }
+    """
     if not file_path.exists():
-        return []
-    return [
-        line.strip()
-        for line in file_path.read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
+        return {"always_excluded": [], "time_based_exclusions": []}
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 
-EXCLUDED_EVENTS = load_excluded_events(EXCLUDED_EVENTS_FILE)
+EXCLUSION_RULES = load_exclusion_rules(EXCLUSION_RULES_FILE)
 
-# Define what to keep/remove
+
+def get_event_date(event):
+    """Extract the date from an event component."""
+    dtstart = event.get('dtstart')
+    if dtstart:
+        dt = dtstart.dt
+        # Handle both date and datetime objects
+        if isinstance(dt, datetime):
+            return dt.date()
+        return dt
+    return None
+
+
 def should_keep(event):
-    summary = str(event.get('summary', '')).lower()
-    # Edit this logic to filter what you don't want to keep
-    if any(word.lower() in summary for word in EXCLUDED_EVENTS):
-        return False
+    """Check if an event should be kept based on exclusion rules."""
+    summary = str(event.get('summary', ''))
+    
+    # Check always excluded events
+    for excluded_title in EXCLUSION_RULES.get('always_excluded', []):
+        if excluded_title.lower() in summary.lower():
+            return False
+    
+    # Check time-based exclusions
+    event_date = get_event_date(event)
+    if event_date:
+        for rule in EXCLUSION_RULES.get('time_based_exclusions', []):
+            start_date = datetime.strptime(rule['start_date'], '%Y-%m-%d').date()
+            end_date = datetime.strptime(rule['end_date'], '%Y-%m-%d').date()
+            
+            # Check if event is within the date range
+            if start_date <= event_date <= end_date:
+                # Check if event matches any of the excluded titles for this period
+                for excluded_title in rule['events']:
+                    if excluded_title.lower() in summary.lower():
+                        return False
+    
     return True
 
 @app.route("/TINF23B6.ics")
