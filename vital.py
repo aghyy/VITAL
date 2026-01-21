@@ -14,6 +14,8 @@ ICAL_URL = "https://rapla.dhbw-karlsruhe.de/rapla?page=iCal&user=li&file=TINF23B
 # The exclusion rules now live in a JSON file for more flexibility
 EXCLUSION_RULES_FILE = Path(__file__).with_name("exclusion_rules.json")
 
+FOTMOB_RMCF_ICAL_URL = "https://pub.fotmob.com/prod/pub/api/v2/calendar/team/8633.ics"
+SOCCER_EMOJI = "⚽️"
 
 def load_exclusion_rules(file_path: Path) -> dict:
     """Load exclusion rules from JSON file.
@@ -37,9 +39,7 @@ def load_exclusion_rules(file_path: Path) -> dict:
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-
 EXCLUSION_RULES = load_exclusion_rules(EXCLUSION_RULES_FILE)
-
 
 def get_event_date(event):
     """Extract the date from an event component."""
@@ -51,7 +51,6 @@ def get_event_date(event):
             return dt.date()
         return dt
     return None
-
 
 def should_keep(event):
     """Check if an event should be kept based on exclusion rules."""
@@ -78,6 +77,18 @@ def should_keep(event):
     
     return True
 
+def _clean_match_title(summary_value) -> str:
+    """Remove leading ⚽️ (and any spaces after it) from the event title."""
+    s = str(summary_value or "")
+    s_lstripped = s.lstrip()
+
+    if s_lstripped.startswith(SOCCER_EMOJI):
+        # Remove the emoji, then remove any leading spaces that might follow it
+        return s_lstripped[len(SOCCER_EMOJI):].lstrip()
+
+    # If it doesn't start with the emoji, keep the original title as-is
+    return s
+
 @app.route("/TINF23B6.ics")
 def filtered_ics():
     # Fetch original iCal
@@ -90,6 +101,28 @@ def filtered_ics():
         new_cal.add(k, v)
     for component in cal.walk():
         if component.name == "VEVENT" and should_keep(component):
+            new_cal.add_component(component)
+
+    return Response(new_cal.to_ical(), content_type="text/calendar")
+
+@app.route("/RMCF.ics")
+def rmcf_ics():
+    # Fetch original iCal
+    r = requests.get(FOTMOB_RMCF_ICAL_URL)
+    cal = Calendar.from_ical(r.text)
+
+    # Build new calendar (same structure/copy approach as your existing endpoint)
+    new_cal = Calendar()
+    for k, v in cal.items():
+        new_cal.add(k, v)
+
+    for component in cal.walk():
+        if component.name == "VEVENT":
+            # Remove the leading ⚽️ from the title (SUMMARY)
+            old_summary = component.get("summary")
+            if old_summary is not None:
+                component["summary"] = _clean_match_title(old_summary)
+
             new_cal.add_component(component)
 
     return Response(new_cal.to_ical(), content_type="text/calendar")
