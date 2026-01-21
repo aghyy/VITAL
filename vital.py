@@ -15,7 +15,17 @@ ICAL_URL = "https://rapla.dhbw-karlsruhe.de/rapla?page=iCal&user=li&file=TINF23B
 EXCLUSION_RULES_FILE = Path(__file__).with_name("exclusion_rules.json")
 
 FOTMOB_RMCF_ICAL_URL = "https://pub.fotmob.com/prod/pub/api/v2/calendar/team/8633.ics"
-SOCCER_EMOJI = "⚽️"
+
+# Matches:
+#  - the real soccer ball emoji (with or without variation selector)
+#  - common mojibake renderings of that emoji when UTF-8 is mis-decoded
+_SOCCER_PREFIX_RE = re.compile(
+    r"""^\s*(?:⚽️|⚽|âš½ï¸\x8f|âš½|â½ï¸\x8f|â½ï¸|â½)\s*""",
+    re.UNICODE,
+)
+
+# After removing the emoji/prefix, also remove leftover leading punctuation + spaces
+_LEADING_JUNK_RE = re.compile(r"^[\s,;:\-\u2013\u2014•|]+")  # commas, dashes, bullets, pipes, etc.
 
 def load_exclusion_rules(file_path: Path) -> dict:
     """Load exclusion rules from JSON file.
@@ -78,16 +88,10 @@ def should_keep(event):
     return True
 
 def _clean_match_title(summary_value) -> str:
-    """Remove leading ⚽️ (and any spaces after it) from the event title."""
     s = str(summary_value or "")
-    s_lstripped = s.lstrip()
-
-    if s_lstripped.startswith(SOCCER_EMOJI):
-        # Remove the emoji, then remove any leading spaces that might follow it
-        return s_lstripped[len(SOCCER_EMOJI):].lstrip()
-
-    # If it doesn't start with the emoji, keep the original title as-is
-    return s
+    s2 = _SOCCER_PREFIX_RE.sub("", s, count=1)
+    s2 = _LEADING_JUNK_RE.sub("", s2)
+    return s2
 
 @app.route("/TINF23B6.ics")
 def filtered_ics():
