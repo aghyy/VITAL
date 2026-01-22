@@ -1,14 +1,14 @@
 # VITAL - Calendar Event Filter
 
-A Flask application that filters iCal events based on configurable exclusion rules.
+A Flask application that provides two calendar processing endpoints:
+1. **Rapla Calendar Filtering** - Filters out unwanted events based on time-based exclusion rules
+2. **Real Madrid CF Calendar** - Cleans up FotMob calendar by removing soccer emojis from event titles
 
-## How It Works
+---
 
-The app fetches your calendar from a Rapla iCal URL and filters out unwanted events based on rules defined in `exclusion_rules.json`.
+## Rapla Calendar Configuration
 
-## Configuring Event Exclusions
-
-Edit `exclusion_rules.json` to control which events are filtered out. The file supports two types of exclusions:
+Edit `exclusion_rules.json` to control which events are filtered out from your Rapla calendar. The file supports two types of exclusions:
 
 ### 1. Always Excluded Events
 
@@ -51,13 +51,25 @@ You can add multiple time-based exclusion rules with different date ranges.
 - The filter looks for **exact matches** (e.g., "Klausur Web-Services (60 min)" will only match if you write the full title)
 - An event is excluded if it matches **any** rule that applies to its date
 
+## Available Endpoints
+
+### 1. Rapla Calendar (Filtered)
+`http://localhost:8000/TINF23B6.ics`
+
+Fetches events from your Rapla calendar and filters them based on the exclusion rules in `exclusion_rules.json`.
+
+### 2. Real Madrid CF Calendar (Cleaned)
+`http://localhost:8000/RMCF.ics`
+
+Fetches Real Madrid CF matches from FotMob and removes the soccer emoji (⚽) and any leading whitespace/punctuation from event titles for a cleaner calendar display.
+
 ## Running the App
 
 ```bash
 python vital.py
 ```
 
-The filtered calendar will be available at: `http://localhost:8000/TINF23B6.ics`
+The app will start on `http://localhost:8000`
 
 ## Requirements
 

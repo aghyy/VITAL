@@ -1,5 +1,6 @@
 from pathlib import Path
-import json, re
+import json
+import re
 from datetime import datetime
 
 from flask import Flask, Response
@@ -8,24 +9,22 @@ from icalendar import Calendar
 
 app = Flask(__name__)
 
+# ============================================================================
+# Configuration
+# ============================================================================
+
 # Original iCal source (Rapla link)
 ICAL_URL = "https://rapla.dhbw-karlsruhe.de/rapla?page=iCal&user=li&file=TINF23B6"
 
 # The exclusion rules now live in a JSON file for more flexibility
 EXCLUSION_RULES_FILE = Path(__file__).with_name("exclusion_rules.json")
 
+# Real Madrid CF calendar from FotMob
 FOTMOB_RMCF_ICAL_URL = "https://pub.fotmob.com/prod/pub/api/v2/calendar/team/8633.ics"
 
-# Matches:
-#  - the real soccer ball emoji (with or without variation selector)
-#  - common mojibake renderings of that emoji when UTF-8 is mis-decoded
-_SOCCER_PREFIX_RE = re.compile(
-    r"""^\s*(?:⚽️|⚽|âš½ï¸\x8f|âš½|â½ï¸\x8f|â½ï¸|â½)\s*""",
-    re.UNICODE,
-)
-
-# After removing the emoji/prefix, also remove leftover leading punctuation + spaces
-_LEADING_JUNK_RE = re.compile(r"^[\s,;:\-\u2013\u2014•|]+")  # commas, dashes, bullets, pipes, etc.
+# ============================================================================
+# Rapla Calendar Filtering (Time-Based Event Exclusions)
+# ============================================================================
 
 def load_exclusion_rules(file_path: Path) -> dict:
     """Load exclusion rules from JSON file.
@@ -51,19 +50,24 @@ def load_exclusion_rules(file_path: Path) -> dict:
 
 EXCLUSION_RULES = load_exclusion_rules(EXCLUSION_RULES_FILE)
 
+
 def get_event_date(event):
     """Extract the date from an event component."""
     dtstart = event.get('dtstart')
     if dtstart:
         dt = dtstart.dt
-        # Handle both date and datetime objects
         if isinstance(dt, datetime):
             return dt.date()
         return dt
     return None
 
-def should_keep(event):
-    """Check if an event should be kept based on exclusion rules."""
+
+def should_keep(event) -> bool:
+    """Check if an event should be kept based on exclusion rules.
+    
+    Returns:
+        True if event should be kept, False if it should be excluded.
+    """
     summary = str(event.get('summary', ''))
     
     # Check always excluded events
@@ -78,28 +82,25 @@ def should_keep(event):
             start_date = datetime.strptime(rule['start_date'], '%Y-%m-%d').date()
             end_date = datetime.strptime(rule['end_date'], '%Y-%m-%d').date()
             
-            # Check if event is within the date range
             if start_date <= event_date <= end_date:
-                # Check if event matches any of the excluded titles for this period
                 for excluded_title in rule['events']:
                     if excluded_title.lower() == summary.lower():
                         return False
     
     return True
 
-def _clean_match_title(summary_value) -> str:
-    s = str(summary_value or "")
-    s2 = _SOCCER_PREFIX_RE.sub("", s, count=1)
-    s2 = _LEADING_JUNK_RE.sub("", s2)
-    return s2
+
+# ============================================================================
+# Flask Routes
+# ============================================================================
 
 @app.route("/TINF23B6.ics")
 def filtered_ics():
-    # Fetch original iCal
+    """Rapla calendar with time-based event filtering."""
     r = requests.get(ICAL_URL)
     cal = Calendar.from_ical(r.text)
 
-    # Build new filtered calendar
+    # Build filtered calendar based on exclusion rules
     new_cal = Calendar()
     for k, v in cal.items():
         new_cal.add(k, v)
@@ -111,25 +112,36 @@ def filtered_ics():
 
 @app.route("/RMCF.ics")
 def rmcf_ics():
-    # Fetch original iCal
+    """Real Madrid CF calendar with cleaned event titles (soccer emoji removed)."""
     r = requests.get(FOTMOB_RMCF_ICAL_URL)
-    cal = Calendar.from_ical(r.text)
-
-    # Build new calendar (same structure/copy approach as your existing endpoint)
+    raw_text = r.content.decode('utf-8', errors='replace')
+    
+    # Remove soccer emoji in all forms (actual emoji ⚽ and mojibake â½ï¸)
+    emoji_patterns = ["⚽️", "⚽", "â½ï¸", "â½", "\u26bd\ufe0f", "\u26bd"]
+    for emoji in emoji_patterns:
+        raw_text = raw_text.replace(f"{emoji} ", "")
+        raw_text = raw_text.replace(emoji, "")
+    
+    # Targeted cleanup after SUMMARY: and DESCRIPTION: fields
+    for field in ["SUMMARY", "DESCRIPTION"]:
+        for emoji in ["â½ï¸", "â½", "⚽️", "⚽"]:
+            raw_text = re.sub(f'({field}:){emoji}\\s*', r'\1', raw_text)
+    
+    # Parse cleaned text and rebuild calendar
+    cal = Calendar.from_ical(raw_text)
     new_cal = Calendar()
     for k, v in cal.items():
         new_cal.add(k, v)
-
     for component in cal.walk():
         if component.name == "VEVENT":
-            # Remove the leading ⚽️ from the title (SUMMARY)
-            old_summary = component.get("summary")
-            if old_summary is not None:
-                component["summary"] = _clean_match_title(old_summary)
-
             new_cal.add_component(component)
 
     return Response(new_cal.to_ical(), content_type="text/calendar")
+
+
+# ============================================================================
+# Main
+# ============================================================================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
