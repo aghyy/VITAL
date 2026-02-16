@@ -97,7 +97,7 @@ def should_keep(event) -> bool:
 @app.route("/TINF23B6.ics")
 def filtered_ics():
     """Rapla calendar with time-based event filtering."""
-    r = requests.get(ICAL_URL)
+    r = requests.get(ICAL_URL, timeout=15, headers={"User-Agent":"vital/1.0"})
     cal = Calendar.from_ical(r.text)
 
     # Build filtered calendar based on exclusion rules
@@ -113,7 +113,7 @@ def filtered_ics():
 @app.route("/RMCF.ics")
 def rmcf_ics():
     """Real Madrid CF calendar with cleaned event titles (soccer emoji removed)."""
-    r = requests.get(FOTMOB_RMCF_ICAL_URL)
+    r = requests.get(FOTMOB_RMCF_ICAL_URL, timeout=15, headers={"User-Agent":"vital/1.0"})
     raw_text = r.content.decode('utf-8', errors='replace')
     
     # Remove soccer emoji in all forms (actual emoji ⚽ and mojibake â½ï¸)
