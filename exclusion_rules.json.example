@@ -1,0 +1,15 @@
+{
+  "always_excluded": [
+  ],
+  "time_based_exclusions": [
+    {
+      "description": "Example: Hide these events from September to December 2025",
+      "start_date": "2025-09-22",
+      "end_date": "2025-12-21",
+      "events": [
+        "Example Event 1",
+        "Example Event 2"
+      ]
+    }
+  ]
+}

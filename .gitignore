@@ -1,4 +1,7 @@
+# Virtual environment
 .venv
+
+# Python cache
 __pycache__
 *.pyc
 *.pyo
@@ -10,4 +13,9 @@ __pycache__
 *.pywzz
 *.pyzzz
 *.pywzzz
-/exclusion_rules.json
+
+# Personal configuration (contains your specific exclusion rules)
+exclusion_rules.json
+
+# Keep the example file in git
+!exclusion_rules.json.example
