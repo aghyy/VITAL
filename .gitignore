@@ -10,4 +10,4 @@ __pycache__
 *.pywzz
 *.pyzzz
 *.pywzzz
-exclusion_rules.json
+/exclusion_rules.json
