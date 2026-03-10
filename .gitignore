@@ -19,3 +19,6 @@ exclusion_rules.json
 
 # Keep the example file in git
 !exclusion_rules.json.example
+
+# Server-local deploy script
+deploy.sh

@@ -1,0 +1,7 @@
+services:
+  vital:
+    build: .
+    container_name: vital
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
