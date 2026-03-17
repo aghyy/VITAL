@@ -1,4 +1,4 @@
 Flask
-icalendar
 requests
-gunicorn
+icalendar
+python-dateutil
